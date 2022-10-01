@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+  server:
+    image: ghcr.io/riszkymf/golang-rest-boilerplate:latest
+    restart: always
+    environment:
+      - DB_PATH=/app/myDb.sqlite
+      - APP_ENV=staging
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8080
+    ports:
+      - '8080:8080'

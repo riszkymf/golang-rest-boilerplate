@@ -5,12 +5,14 @@ import (
 
 	"fmt"
 	"log"
+	"strings"
 
 	"net/http"
 	"os"
 
 	"database/sql"
 
+	"github.com/emicklei/go-restful/v3"
 	"github.com/joho/godotenv"
 	_ "github.com/mattn/go-sqlite3"
 
@@ -20,10 +22,12 @@ import (
 )
 
 type Env struct {
-	DB_PATH  string
-	APP_ENV  string
-	APP_HOST string
-	APP_PORT string
+	DB_PATH    string
+	APP_ENV    string
+	APP_HOST   string
+	APP_PORT   string
+	WS_LOGGING string
+	WS_AUTH    string
 }
 
 var env Env
@@ -39,6 +43,9 @@ func init() {
 	env.APP_HOST = src.GetEnv("APP_HOST", "0.0.0.0")
 	env.APP_PORT = src.GetEnv("APP_PORT", "8080")
 	env.DB_PATH = src.GetEnv("DB_PATH", "")
+	env.WS_LOGGING = strings.ToUpper(src.GetEnv("WS_LOGGING", "TRUE"))
+	env.WS_AUTH = strings.ToUpper(src.GetEnv("WS_AUTH", "TRUE"))
+
 	if env.DB_PATH == "" {
 		log.Fatal("DB Location is invalid")
 	}
@@ -52,9 +59,15 @@ func init() {
 }
 
 func main() {
-	route.SetRoutes()
+	wsRConfig := route.RouteFilterConfig{
+		WebServiceLogging: env.WS_LOGGING,
+		Auth:              env.WS_AUTH,
+	}
+	ws := restful.NewContainer()
+	ws = route.SetFilters(ws, wsRConfig)
+	ws = route.SetRoutes(ws)
 	appHost := fmt.Sprintf("%v:%v", env.APP_HOST, env.APP_PORT)
 	log.Printf("Running App on %v", appHost)
-	log.Fatal(http.ListenAndServe(appHost, nil))
+	log.Fatal(http.ListenAndServe(appHost, ws))
 
 }

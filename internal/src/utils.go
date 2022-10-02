@@ -9,14 +9,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var logger = logrus.New()
+var Logger = logrus.New()
 
 func LogInfo(location string, event string, message ...string) {
 	mess := ""
 	for _, msg := range message {
 		mess = mess + msg
 	}
-	logger.WithFields(logrus.Fields{
+	Logger.WithFields(logrus.Fields{
 		"location": location,
 		"event":    event,
 	}).Info(mess)
@@ -28,7 +28,7 @@ func LogError(location string, event string, message ...string) {
 	for _, msg := range message {
 		mess = mess + msg
 	}
-	logger.WithFields(logrus.Fields{
+	Logger.WithFields(logrus.Fields{
 		"id":       errorId,
 		"location": location,
 		"event":    event,
@@ -41,7 +41,7 @@ func LogFatal(location string, event string, message ...string) {
 	for _, msg := range message {
 		mess = mess + msg
 	}
-	logger.WithFields(logrus.Fields{
+	Logger.WithFields(logrus.Fields{
 		"id":       errorId,
 		"location": location,
 		"event":    event,
